@@ -1,12 +1,17 @@
 import React from "react";
 import "./App.css";
 import { FullPageCalendar } from "./components/FullPageCalendar";
+import { CalendarContextProvider } from "./contexts/calendarContext";
+import { DayCard } from "./components/DayCard";
 
 function App() {
   return (
-    <div className="App">
-      <FullPageCalendar />
-    </div>
+    <CalendarContextProvider>
+      <div className="App">
+        <FullPageCalendar />
+        <DayCard />
+      </div>
+    </CalendarContextProvider>
   );
 }
 

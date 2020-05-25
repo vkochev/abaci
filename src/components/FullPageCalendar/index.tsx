@@ -1,34 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { Component } from "./Component";
-import { getFirstDate, getLastDate, getDaysRange } from "./utils";
+import { getDaysRange } from "./utils";
+import { useCalendarContext } from "../../contexts/calendarContext";
 
 type Props = {};
 
 export function FullPageCalendar(props: Props) {
-  const componentProps = useComponentProps(props);
+  const componentProps = useComponentProps();
+
   return <Component {...componentProps} />;
 }
 
-function useComponentProps(props: Props) {
-  const [anchorDate, setAnchorDate] = useState(new Date());
-  const firstDate = getFirstDate(anchorDate);
-  const lastDate = getLastDate(firstDate);
-
+function useComponentProps() {
+  const [{ anchorDate, firstDate, lastDate }, dispatch] = useCalendarContext();
   const daysRange = getDaysRange(firstDate, lastDate);
-
+  const monthYearString = new Intl.DateTimeFormat(undefined, { month: "short", year: "numeric" }).format(anchorDate);
   return {
     daysRange,
     anchorDate,
-    showPrevMonth() {
-      const newAnchorDate = new Date(firstDate);
-      newAnchorDate.setDate(newAnchorDate.getDate() - 1);
-      setAnchorDate(newAnchorDate);
-    },
-    showNextMonth() {
-      const newAnchorDate = new Date(lastDate);
-      newAnchorDate.setDate(newAnchorDate.getDate() + 1);
-      setAnchorDate(newAnchorDate);
-    },
+    monthYearString,
+    dispatch,
   };
 }
 

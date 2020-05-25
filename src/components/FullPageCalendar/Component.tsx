@@ -2,6 +2,7 @@ import { ComponentProps } from ".";
 import React from "react";
 import styled, { css } from "styled-components";
 import { shortWeekDays } from "./constants";
+import { DispatchCalendarAction } from "../../contexts/calendarContext";
 const Container = styled.div`
   margin: auto;
   background: ghostwhite;
@@ -79,28 +80,29 @@ export function Component(props: ComponentProps) {
   return (
     <Container>
       <Header>
-        <ChangeMonthButton children="пред." onClick={props.showPrevMonth} />
-        <YearContainer
-          children={new Intl.DateTimeFormat(undefined, { month: "short", year: "numeric" }).format(props.anchorDate)}
-        />
-        <ChangeMonthButton children="след." onClick={props.showNextMonth} />
+        <ChangeMonthButton children="пред." onClick={() => props.dispatch({ type: "show_prev_month" })} />
+        <YearContainer children={props.monthYearString} />
+        <ChangeMonthButton children="след." onClick={() => props.dispatch({ type: "show_next_month" })} />
       </Header>
       <DaysGrid>
         {[...drawHeaders(shortWeekDays)]}
-        {[...drawDays(props.daysRange, props.anchorDate)]}
+        {[...drawDays(props.daysRange, props.anchorDate, props.dispatch)]}
       </DaysGrid>
     </Container>
   );
 }
 
-function* drawDays(range: Generator<Date>, now: Date) {
+function* drawDays(range: Generator<Date>, now: Date, dispatch: DispatchCalendarAction) {
   while (true) {
-    const next = range.next();
-    if (next.done) return;
+    const { value, done } = range.next();
+    if (done) return;
 
     yield (
-      <DayCard isCurrentMonth={next.value.getMonth() === now.getMonth()}>
-        <div>{next.value.getDate()}</div>
+      <DayCard
+        isCurrentMonth={value.getMonth() === now.getMonth()}
+        onClick={() => dispatch({ type: "select_date", value })}
+      >
+        <div>{value.getDate()}</div>
       </DayCard>
     );
   }
