@@ -22,7 +22,9 @@ const PositionContainer = styled.div`
   left: inherit;
   width: inherit;
   background: #fff;
-  height: 50vh;
+  min-height: 50vh;
+  max-height: 80vh;
+  overflow-y: auto;
   ${shadow1Mixin}
 `;
 
