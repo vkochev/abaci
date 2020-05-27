@@ -1,33 +1,163 @@
-import { ComponentProps } from ".";
-import React from "react";
-import styled, { css } from "styled-components";
+import { ComponentProps } from '.';
+import React from 'react';
+import styled, { css } from 'styled-components';
+import { Formik, Form } from 'formik';
+import * as yup from 'yup';
+import {
+  spaceEvenlyFlexMixin,
+  baseOnHoverMixin,
+  baseFlexMixin,
+  spaceBetweenFlexMixin,
+  shadow1Mixin,
+  fadeInKeyframe,
+} from '../../styledMixins';
+import { Income } from '../../contexts/calendarContext';
 
-const Container = styled.div`
-  position: fixed;
-  width: 100%;
-  background: #fff;
+const validationSchema = yup.object({
+  value: yup.number().integer().min(1).required(),
+  tag: yup.string().optional(),
+});
+const PositionContainer = styled.div`
+  position: absolute;
   bottom: 0;
-  margin: auto;
+  left: inherit;
+  width: inherit;
+  background: #fff;
   height: 30vh;
-  box-shadow: -2px -2px 6px 1px #d2d2d2, 2px -2px 6px 1px #d2d2d2;
+  ${shadow1Mixin}
 `;
+
+const ContentContainer = styled.div`
+  margin: 10px 30px;
+`;
+
 const Header = styled.div`
-  display: flex;
-  justify-content: space-evenly;
-  align-items: baseline;
+  ${spaceBetweenFlexMixin}
 `;
 const Link = styled.a`
+  ${baseOnHoverMixin}
+`;
+const Row = styled.div`
+  margin: 8px 0;
+  ${spaceBetweenFlexMixin}
+`;
+const ActionsRow = styled.div`
+  ${baseFlexMixin};
+  flex-direction: row-reverse;
+`;
+const Col1 = styled.div``;
+const Col2 = styled.div`
+  flex-basis: 70%;
+  flex-grow: 0;
+`;
+const Input = styled.input``;
+
+const pseudoTooltipMixin = css`
+  content: attr(data-error-message);
+  display: inline-block;
+  position: absolute;
+  transform: translate(0, -106%);
+  background: #ff0000;
+  padding: 4px 8px;
+  animation: ${fadeInKeyframe} 300ms;
+  border-radius: 2px;
+  color: #ffe0e0;
+  font-weight: 400;
+  max-width: 50vw;
+  opacity: 0.8;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+const pseudoTooltipArrowMixin = css`
+  content: '';
+  background: none;
+  border-radius: unset;
+  width: 0;
+  height: 0;
+  border: solid 4px transparent;
+  border-top: solid 4px #ff0000;
+  display: inline-block;
+  position: absolute;
+  transform: translate(-145px, -22%);
+  animation: ${fadeInKeyframe} 300ms;
+  opacity: 0.8;
+`;
+const Label = styled.label`
+  &[data-error-message]:after {
+    content: '!';
+    position: absolute;
+    background: #ff0000;
+    color: #ffe0e0;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    line-height: 1;
+    transform: translate(-20px, 4px);
+    font-weight: 500;
+  }
+  &:focus-within,
   &:hover {
-    cursor: pointer;
+    &[data-error-message]:before {
+      ${pseudoTooltipMixin};
+    }
+    &[data-error-message]:after {
+      ${pseudoTooltipArrowMixin}
+      overflow: unset;
+      white-space: unset;
+      text-overflow: unset;
+    }
   }
 `;
+const StyledForm = styled(Form)`
+  margin: 10px auto;
+`;
+const Button = styled.button``;
+
 export function Component(props: ComponentProps) {
   return (
-    <Container>
-      <Header>
-        <h1>{props.selectedDateString}</h1>
-        <Link children="Close" onClick={() => props.dispatch({ type: "unselect_date" })} />
-      </Header>
-    </Container>
+    <PositionContainer>
+      <ContentContainer>
+        <Header>
+          <h1>{props.selectedDateString}</h1>
+          <Link children="Закрыть" onClick={() => props.dispatch({ type: 'unselect_date' })} />
+        </Header>
+        <Formik<Income>
+          validationSchema={validationSchema}
+          initialValues={{ tag: '', value: 0 }}
+          onSubmit={(value) => props.dispatch({ type: 'add_income', date: props.selectedDate, value })}
+        >
+          {({ handleChange, errors }) => {
+            const hasErrors = Object.values(errors).some((v) => v != null);
+            return (
+              <StyledForm>
+                <Row>
+                  <Col1>Доход</Col1>
+                  <Col2>
+                    <Label data-error-message={errors.value}>
+                      <Input name="value" type="number" onChange={handleChange} />
+                    </Label>
+                  </Col2>
+                </Row>
+                <Row>
+                  <Col1>Категория</Col1>
+                  <Col2>
+                    <Label data-error-message={errors.tag}>
+                      <Input name="tag" type="text" onChange={handleChange} />
+                    </Label>
+                  </Col2>
+                </Row>
+                <ActionsRow>
+                  <Col2>
+                    <Button type="submit" children="Добавить" disabled={hasErrors} />
+                  </Col2>
+                </ActionsRow>
+              </StyledForm>
+            );
+          }}
+        </Formik>
+      </ContentContainer>
+    </PositionContainer>
   );
 }

@@ -1,7 +1,7 @@
-import React from "react";
-import { Component } from "./Component";
-import { getDaysRange } from "./utils";
-import { useCalendarContext } from "../../contexts/calendarContext";
+import React from 'react';
+import { Component } from './Component';
+import { getDaysRange } from './utils';
+import { useCalendarContext } from '../../contexts/calendarContext';
 
 type Props = {};
 
@@ -12,10 +12,11 @@ export function FullPageCalendar(props: Props) {
 }
 
 function useComponentProps() {
-  const [{ anchorDate, firstDate, lastDate }, dispatch] = useCalendarContext();
+  const [{ anchorDate, firstDate, lastDate, incomes }, dispatch] = useCalendarContext();
   const daysRange = getDaysRange(firstDate, lastDate);
-  const monthYearString = new Intl.DateTimeFormat(undefined, { month: "short", year: "numeric" }).format(anchorDate);
+  const monthYearString = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(anchorDate);
   return {
+    incomes,
     daysRange,
     anchorDate,
     monthYearString,

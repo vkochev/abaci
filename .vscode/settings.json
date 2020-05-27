@@ -1,0 +1,7 @@
+{
+  "prettier.printWidth": 120,
+  "editor.wordWrapColumn": 120,
+  "editor.wordWrap": "bounded",
+  "prettier.packageManager": "yarn",
+  "prettier.singleQuote": true
+}

@@ -1,13 +1,10 @@
-import { ComponentProps } from ".";
-import React from "react";
-import styled, { css } from "styled-components";
-import { shortWeekDays } from "./constants";
-import { DispatchCalendarAction } from "../../contexts/calendarContext";
+import { ComponentProps } from '.';
+import React from 'react';
+import styled, { css } from 'styled-components';
+import { shortWeekDays } from './constants';
+import { DispatchCalendarAction, Incomes } from '../../contexts/calendarContext';
+import { spaceBetweenFlexMixin } from '../../styledMixins';
 const Container = styled.div`
-  margin: auto;
-  background: ghostwhite;
-  width: min-content;
-  font-weight: 300;
   @media screen and (min-width: 640px) {
     padding: 20px;
   }
@@ -16,12 +13,10 @@ const DaysGrid = styled.div`
   display: grid;
   grid-template-rows: repeat(7, 1fr);
   grid-template-columns: repeat(7, 1fr);
-  width: calc(100vmin - 4px);
   grid-gap: 4px;
 
   @media screen and (min-width: 640px) {
-    height: calc(100vmin - 80px - 5vmin);
-    width: calc(100vmin - 40px);
+    height: calc(100vmin - 60px - 5vmin);
     grid-gap: 20px;
   }
 `;
@@ -66,11 +61,8 @@ const DayCard = styled.button<{ isCurrentMonth: boolean }>`
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  ${spaceBetweenFlexMixin}
   font-size: 5vmin;
-  margin: 10px 0;
 `;
 const YearContainer = styled.div``;
 const ChangeMonthButton = styled.button`
@@ -80,29 +72,36 @@ export function Component(props: ComponentProps) {
   return (
     <Container>
       <Header>
-        <ChangeMonthButton children="пред." onClick={() => props.dispatch({ type: "show_prev_month" })} />
+        <ChangeMonthButton children="пред." onClick={() => props.dispatch({ type: 'show_prev_month' })} />
         <YearContainer children={props.monthYearString} />
-        <ChangeMonthButton children="след." onClick={() => props.dispatch({ type: "show_next_month" })} />
+        <ChangeMonthButton children="след." onClick={() => props.dispatch({ type: 'show_next_month' })} />
       </Header>
       <DaysGrid>
         {[...drawHeaders(shortWeekDays)]}
-        {[...drawDays(props.daysRange, props.anchorDate, props.dispatch)]}
+        {[...drawDays(props.daysRange, props.anchorDate, props.incomes, props.dispatch)]}
       </DaysGrid>
     </Container>
   );
 }
-
-function* drawDays(range: Generator<Date>, now: Date, dispatch: DispatchCalendarAction) {
+const DayNumberContainer = styled.div`
+  font-size: 1.5vh;
+`;
+function* drawDays(range: Generator<Date>, now: Date, incomes: Incomes, dispatch: DispatchCalendarAction) {
   while (true) {
     const { value, done } = range.next();
     if (done) return;
 
+    const totalIncome = (incomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
     yield (
       <DayCard
+        key={value.toISOString()}
         isCurrentMonth={value.getMonth() === now.getMonth()}
-        onClick={() => dispatch({ type: "select_date", value })}
+        onClick={() => dispatch({ type: 'select_date', value })}
       >
-        <div>{value.getDate()}</div>
+        <div>
+          <DayNumberContainer>{value.getDate()}</DayNumberContainer>
+          <div>{totalIncome}</div>
+        </div>
       </DayCard>
     );
   }
@@ -111,8 +110,8 @@ function* drawDays(range: Generator<Date>, now: Date, dispatch: DispatchCalendar
 function* drawHeaders(range: Iterable<string>) {
   const iterator = range[Symbol.iterator]();
   while (true) {
-    const next = iterator.next();
-    if (next.done) return;
-    yield <ColumnHeader>{next.value}</ColumnHeader>;
+    const { value, done } = iterator.next();
+    if (done) return;
+    yield <ColumnHeader key={value}>{value}</ColumnHeader>;
   }
 }
