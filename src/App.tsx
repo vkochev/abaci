@@ -15,6 +15,12 @@ const Container = styled.div`
   @media screen and (min-width: 640px) {
     width: calc(100vmin - 40px);
   }
+
+  h1 {
+    margin: 6px 0;
+    font-weight: 300;
+    font-size: 24px;
+  }
 `;
 
 function App() {

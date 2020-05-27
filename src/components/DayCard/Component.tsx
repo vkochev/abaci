@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import {
-  spaceEvenlyFlexMixin,
   baseOnHoverMixin,
   baseFlexMixin,
   spaceBetweenFlexMixin,
@@ -23,7 +22,7 @@ const PositionContainer = styled.div`
   left: inherit;
   width: inherit;
   background: #fff;
-  height: 30vh;
+  height: 50vh;
   ${shadow1Mixin}
 `;
 
@@ -114,7 +113,23 @@ const StyledForm = styled(Form)`
   margin: 10px auto;
 `;
 const Button = styled.button``;
+const TagsContainer = styled.div`
+  ${baseFlexMixin}
+  flex-wrap: wrap;
 
+  & > * {
+    margin: 5px 0;
+    margin-right: 10px;
+  }
+`;
+const IncomeTag = styled.div`
+  padding: 2px;
+  border: solid 2px #52db24;
+  background: #52db2490;
+  border-radius: 4px;
+  color: #2c7513;
+  font-weight: 500;
+`;
 export function Component(props: ComponentProps) {
   return (
     <PositionContainer>
@@ -132,6 +147,13 @@ export function Component(props: ComponentProps) {
             const hasErrors = Object.values(errors).some((v) => v != null);
             return (
               <StyledForm>
+                {!!props.incomes && (
+                  <TagsContainer>
+                    {props.incomes.map(({ tag, value }) => (
+                      <IncomeTag children={`${tag || 'Без категории'}: ${value}`} />
+                    ))}
+                  </TagsContainer>
+                )}
                 <Row>
                   <Col1>Доход</Col1>
                   <Col2>

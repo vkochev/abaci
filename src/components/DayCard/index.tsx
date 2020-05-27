@@ -12,11 +12,17 @@ export function DayCard(props: Props) {
 }
 
 function useComponentProps() {
-  const [{ selectedDate }, dispatch] = useCalendarContext();
+  const [{ selectedDate, incomes }, dispatch] = useCalendarContext();
   const selectedDateString = selectedDate
     ? new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric', day: '2-digit' }).format(selectedDate)
     : null;
-  return { selectedDate: selectedDate!, selectedDateString, dispatch, show: Boolean(selectedDate) };
+  return {
+    selectedDate: selectedDate!,
+    incomes: selectedDate ? incomes.get(selectedDate.valueOf()) : [],
+    selectedDateString,
+    dispatch,
+    show: Boolean(selectedDate),
+  };
 }
 
 export type ComponentProps = ReturnType<typeof useComponentProps>;

@@ -1,7 +1,8 @@
 import { createContext, useReducer, useContext, PropsWithChildren, createElement, Dispatch } from 'react';
 import { getLastDate, getFirstDate } from '../../components/FullPageCalendar/utils';
-import p, { Immutable } from 'immer';
-
+import { Immutable, produce as p } from 'immer';
+import { localStorageSaverMiddleware as lsm, getFromLocalStorage } from '../../localStorage';
+const localStorageKey = 'calendarContext';
 type CalendarState = {
   firstDate: Date;
   lastDate: Date;
@@ -21,7 +22,7 @@ type CalendarAction =
 export type Income = { tag: string; value: number };
 export type Incomes = Immutable<CalendarState>['incomes'];
 const initialDate = new Date();
-const initialState: CalendarState = {
+const initialState: CalendarState = getFromLocalStorage(localStorageKey) ?? {
   anchorDate: initialDate,
   firstDate: initialDate,
   lastDate: initialDate,
@@ -47,41 +48,43 @@ export function useCalendarContext() {
   return useContext(CalendarContext);
 }
 
-const calendarContextReducer = p((draft: CalendarState, action: CalendarAction) => {
-  switch (action.type) {
-    case 'show_prev_month': {
-      const prevDate = new Date(draft.firstDate);
-      prevDate.setDate(prevDate.getDate() - 1);
-      draft.anchorDate = prevDate;
-      return recalculateFirstAndLastDate(draft);
-    }
-    case 'show_next_month': {
-      const nextDate = new Date(draft.lastDate);
-      nextDate.setDate(nextDate.getDate() + 1);
-      draft.anchorDate = nextDate;
-      return recalculateFirstAndLastDate(draft);
-    }
-    case 'select_date': {
-      draft.selectedDate = action.value;
-      break;
-    }
-    case 'unselect_date': {
-      draft.selectedDate = null;
-      break;
-    }
-    case 'add_income': {
-      const key = action.date.valueOf();
-      const draftValue = draft.incomes.get(key);
-      if (draftValue) {
-        draftValue.push(action.value);
-      } else {
-        draft.incomes.set(key, [action.value]);
+const calendarContextReducer = lsm(localStorageKey)(
+  p((draft: CalendarState, action: CalendarAction) => {
+    switch (action.type) {
+      case 'show_prev_month': {
+        const prevDate = new Date(draft.firstDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        draft.anchorDate = prevDate;
+        return recalculateFirstAndLastDate(draft);
       }
-      break;
+      case 'show_next_month': {
+        const nextDate = new Date(draft.lastDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        draft.anchorDate = nextDate;
+        return recalculateFirstAndLastDate(draft);
+      }
+      case 'select_date': {
+        draft.selectedDate = action.value;
+        break;
+      }
+      case 'unselect_date': {
+        draft.selectedDate = null;
+        break;
+      }
+      case 'add_income': {
+        const key = action.date.valueOf();
+        const draftValue = draft.incomes.get(key);
+        if (draftValue) {
+          draftValue.push(action.value);
+        } else {
+          draft.incomes.set(key, [action.value]);
+        }
+        break;
+      }
     }
-  }
-  return draft;
-});
+    return draft;
+  })
+);
 
 function recalculateFirstAndLastDate(state: CalendarState): CalendarState {
   state.firstDate = getFirstDate(state.anchorDate);
