@@ -12,13 +12,14 @@ export function DayCard(props: Props) {
 }
 
 function useComponentProps() {
-  const [{ selectedDate, incomes }, dispatch] = useCalendarContext();
+  const [{ selectedDate, nonRecurringIncomes, fixedIncomes }, dispatch] = useCalendarContext();
   const selectedDateString = selectedDate
     ? new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric', day: '2-digit' }).format(selectedDate)
     : null;
   return {
     selectedDate: selectedDate!,
-    incomes: selectedDate ? incomes.get(selectedDate.valueOf()) : [],
+    nonRecurringIncomes: selectedDate ? nonRecurringIncomes.get(selectedDate.valueOf()) : [],
+    fixedIncomes: selectedDate ? fixedIncomes.get(selectedDate.valueOf()) : [],
     selectedDateString,
     dispatch,
     show: Boolean(selectedDate),

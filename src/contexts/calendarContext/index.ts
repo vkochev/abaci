@@ -8,7 +8,8 @@ type CalendarState = {
   lastDate: Date;
   anchorDate: Date;
   selectedDate: Date | null;
-  incomes: Map<number, Income[]>;
+  nonRecurringIncomes: Map<number, Income[]>;
+  fixedIncomes: Map<number, Income[]>;
 };
 type CalendarAction =
   | {
@@ -17,17 +18,20 @@ type CalendarAction =
   | { type: 'show_next_month' }
   | { type: 'select_date'; value: Date }
   | { type: 'unselect_date' }
-  | { type: 'add_income'; date: Date; value: Income };
+  | { type: 'add_income'; date: Date; value: Income; incomeType: 'fixed' | 'nonRecurring' };
 
 export type Income = { tag: string; value: number };
-export type Incomes = Immutable<CalendarState>['incomes'];
+export const incomeTypes = ['fixed', 'nonRecurring'] as const;
+export type IncomeTypes = typeof incomeTypes[number];
+export type Incomes = Immutable<CalendarState>['nonRecurringIncomes'];
 const initialDate = new Date();
 const initialState: CalendarState = getFromLocalStorage(localStorageKey) ?? {
   anchorDate: initialDate,
   firstDate: initialDate,
   lastDate: initialDate,
   selectedDate: null,
-  incomes: new Map(),
+  nonRecurringIncomes: new Map(),
+  fixedIncomes: new Map(),
 };
 export type DispatchCalendarAction = Dispatch<CalendarAction>;
 const CalendarContext = createContext<[Immutable<CalendarState>, DispatchCalendarAction]>([
@@ -73,13 +77,26 @@ const calendarContextReducer = lsm(localStorageKey)(
       }
       case 'add_income': {
         const key = action.date.valueOf();
-        const draftValue = draft.incomes.get(key);
-        if (draftValue) {
-          draftValue.push(action.value);
-        } else {
-          draft.incomes.set(key, [action.value]);
+        switch (action.incomeType) {
+          case 'nonRecurring': {
+            const draftValue = draft.nonRecurringIncomes.get(key);
+            if (draftValue) {
+              draftValue.push(action.value);
+            } else {
+              draft.nonRecurringIncomes.set(key, [action.value]);
+            }
+            break;
+          }
+          case 'fixed': {
+            const draftValue = draft.fixedIncomes.get(key);
+            if (draftValue) {
+              draftValue.push(action.value);
+            } else {
+              draft.fixedIncomes.set(key, [action.value]);
+            }
+            break;
+          }
         }
-        break;
       }
     }
     return draft;

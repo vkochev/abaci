@@ -78,7 +78,9 @@ export function Component(props: ComponentProps) {
       </Header>
       <DaysGrid>
         {[...drawHeaders(shortWeekDays)]}
-        {[...drawDays(props.daysRange, props.anchorDate, props.incomes, props.dispatch)]}
+        {[
+          ...drawDays(props.daysRange, props.anchorDate, props.fixedIncomes, props.nonRecurringIncomes, props.dispatch),
+        ]}
       </DaysGrid>
     </Container>
   );
@@ -86,12 +88,20 @@ export function Component(props: ComponentProps) {
 const DayNumberContainer = styled.div`
   font-size: 1.5vh;
 `;
-function* drawDays(range: Generator<Date>, now: Date, incomes: Incomes, dispatch: DispatchCalendarAction) {
+function* drawDays(
+  range: Generator<Date>,
+  now: Date,
+  fixedIncomes: Incomes,
+  nonRecurringIncomes: Incomes,
+  dispatch: DispatchCalendarAction
+) {
   while (true) {
     const { value, done } = range.next();
     if (done) return;
 
-    const totalIncome = (incomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
+    const totalIncome =
+      (nonRecurringIncomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0) +
+      (fixedIncomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
     yield (
       <DayCard
         key={value.toISOString()}

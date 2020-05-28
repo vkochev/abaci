@@ -12,11 +12,12 @@ export function FullPageCalendar(props: Props) {
 }
 
 function useComponentProps() {
-  const [{ anchorDate, firstDate, lastDate, incomes }, dispatch] = useCalendarContext();
+  const [{ anchorDate, firstDate, lastDate, nonRecurringIncomes, fixedIncomes }, dispatch] = useCalendarContext();
   const daysRange = getDaysRange(firstDate, lastDate);
   const monthYearString = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(anchorDate);
   return {
-    incomes,
+    nonRecurringIncomes,
+    fixedIncomes,
     daysRange,
     anchorDate,
     monthYearString,

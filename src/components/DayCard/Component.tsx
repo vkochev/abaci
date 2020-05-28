@@ -10,10 +10,11 @@ import {
   shadow1Mixin,
   fadeInKeyframe,
 } from '../../styledMixins';
-import { Income } from '../../contexts/calendarContext';
+import { Income, IncomeTypes } from '../../contexts/calendarContext';
 
 const validationSchema = yup.object({
   value: yup.number().integer().min(1).required(),
+  type: yup.string().required(),
   tag: yup.string().optional(),
 });
 const PositionContainer = styled.div`
@@ -132,6 +133,12 @@ const IncomeTag = styled.div`
   color: #2c7513;
   font-weight: 500;
 `;
+
+const Fieldset = styled.fieldset`
+  padding: 0;
+  margin: 0;
+  border: none;
+`;
 export function Component(props: ComponentProps) {
   return (
     <PositionContainer>
@@ -140,19 +147,28 @@ export function Component(props: ComponentProps) {
           <h1>{props.selectedDateString}</h1>
           <Link children="Закрыть" onClick={() => props.dispatch({ type: 'unselect_date' })} />
         </Header>
-        <Formik<Income>
+        <Formik<Income & { type: IncomeTypes }>
           validationSchema={validationSchema}
-          initialValues={{ tag: '', value: 0 }}
-          onSubmit={(value) => props.dispatch({ type: 'add_income', date: props.selectedDate, value })}
+          initialValues={{ tag: '', value: 0, type: 'fixed' }}
+          onSubmit={({ type, ...value }) =>
+            props.dispatch({ type: 'add_income', date: props.selectedDate, value, incomeType: type })
+          }
         >
-          {({ handleChange, errors }) => {
+          {({ handleChange, errors, values }) => {
             const hasErrors = Object.values(errors).some((v) => v != null);
             return (
               <StyledForm>
-                {!!props.incomes && (
+                {!!props.nonRecurringIncomes && (
                   <TagsContainer>
-                    {props.incomes.map(({ tag, value }) => (
-                      <IncomeTag children={`${tag || 'Без категории'}: ${value}`} />
+                    {props.nonRecurringIncomes.map(({ tag, value }, i) => (
+                      <IncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
+                    ))}
+                  </TagsContainer>
+                )}
+                {!!props.fixedIncomes && (
+                  <TagsContainer>
+                    {props.fixedIncomes.map(({ tag, value }, i) => (
+                      <IncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
                     ))}
                   </TagsContainer>
                 )}
@@ -162,6 +178,21 @@ export function Component(props: ComponentProps) {
                     <Label data-error-message={errors.value}>
                       <Input name="value" type="number" onChange={handleChange} />
                     </Label>
+                  </Col2>
+                </Row>
+                <Row>
+                  <Col1>Тип</Col1>
+                  <Col2>
+                    <Fieldset id="type" onChange={handleChange}>
+                      <label>
+                        <input type="radio" name="type" value="fixed" defaultChecked={true} />
+                        Постоянный
+                      </label>
+                      <label>
+                        <input type="radio" name="type" value="nonRecurring" />
+                        Разовый
+                      </label>
+                    </Fieldset>
                   </Col2>
                 </Row>
                 <Row>

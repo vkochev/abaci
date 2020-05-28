@@ -29,8 +29,12 @@ function replaceValue(value: any) {
 export function getFromLocalStorage(key: string) {
   const value = localStorage.getItem(key);
   if (!value) return null;
-
-  return JSON.parse(value, reviver);
+  try {
+    return JSON.parse(value, reviver);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
 function reviver(this: any, _: string, value: any) {
