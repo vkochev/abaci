@@ -125,15 +125,23 @@ const TagsContainer = styled.div`
     margin-right: 10px;
   }
 `;
-const IncomeTag = styled.div`
+const NonRecurringIncomeTag = styled.div`
   padding: 2px;
+  font-weight: 500;
   border: solid 2px #52db24;
   background: #52db2490;
   border-radius: 4px;
   color: #2c7513;
-  font-weight: 500;
 `;
 
+const FixedIncomeTag = styled.div`
+  padding: 2px;
+  font-weight: 500;
+  border: solid 2px #24db87;
+  background: #24db8790;
+  border-radius: 4px;
+  color: #115f3b;
+`;
 const Fieldset = styled.fieldset`
   padding: 0;
   margin: 0;
@@ -154,21 +162,21 @@ export function Component(props: ComponentProps) {
             props.dispatch({ type: 'add_income', date: props.selectedDate, value, incomeType: type })
           }
         >
-          {({ handleChange, errors, values }) => {
+          {({ handleChange, errors }) => {
             const hasErrors = Object.values(errors).some((v) => v != null);
             return (
               <StyledForm>
                 {!!props.nonRecurringIncomes && (
                   <TagsContainer>
                     {props.nonRecurringIncomes.map(({ tag, value }, i) => (
-                      <IncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
+                      <NonRecurringIncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
                     ))}
                   </TagsContainer>
                 )}
                 {!!props.fixedIncomes && (
                   <TagsContainer>
                     {props.fixedIncomes.map(({ tag, value }, i) => (
-                      <IncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
+                      <FixedIncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
                     ))}
                   </TagsContainer>
                 )}

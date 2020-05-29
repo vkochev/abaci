@@ -76,9 +76,9 @@ const calendarContextReducer = lsm(localStorageKey)(
         break;
       }
       case 'add_income': {
-        const key = action.date.valueOf();
         switch (action.incomeType) {
           case 'nonRecurring': {
+            const key = action.date.valueOf();
             const draftValue = draft.nonRecurringIncomes.get(key);
             if (draftValue) {
               draftValue.push(action.value);
@@ -88,6 +88,7 @@ const calendarContextReducer = lsm(localStorageKey)(
             break;
           }
           case 'fixed': {
+            const key = action.date.getUTCDate();
             const draftValue = draft.fixedIncomes.get(key);
             if (draftValue) {
               draftValue.push(action.value);

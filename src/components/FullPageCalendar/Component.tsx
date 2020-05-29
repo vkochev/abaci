@@ -101,7 +101,7 @@ function* drawDays(
 
     const totalIncome =
       (nonRecurringIncomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0) +
-      (fixedIncomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
+      (fixedIncomes.get(value.getUTCDate()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
     yield (
       <DayCard
         key={value.toISOString()}
