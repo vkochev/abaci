@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/abaci/static/css/main.5ecd60fb.chunk.css",
+    "main.js": "/abaci/static/js/main.4c2a7550.chunk.js",
+    "main.js.map": "/abaci/static/js/main.4c2a7550.chunk.js.map",
+    "runtime-main.js": "/abaci/static/js/runtime-main.a1d5662f.js",
+    "runtime-main.js.map": "/abaci/static/js/runtime-main.a1d5662f.js.map",
+    "static/js/2.2fd9d128.chunk.js": "/abaci/static/js/2.2fd9d128.chunk.js",
+    "static/js/2.2fd9d128.chunk.js.map": "/abaci/static/js/2.2fd9d128.chunk.js.map",
+    "index.html": "/abaci/index.html",
+    "precache-manifest.784062ed5ccf0168b6ff17daeeabca60.js": "/abaci/precache-manifest.784062ed5ccf0168b6ff17daeeabca60.js",
+    "service-worker.js": "/abaci/service-worker.js",
+    "static/css/main.5ecd60fb.chunk.css.map": "/abaci/static/css/main.5ecd60fb.chunk.css.map",
+    "static/js/2.2fd9d128.chunk.js.LICENSE.txt": "/abaci/static/js/2.2fd9d128.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a1d5662f.js",
+    "static/js/2.2fd9d128.chunk.js",
+    "static/css/main.5ecd60fb.chunk.css",
+    "static/js/main.4c2a7550.chunk.js"
+  ]
+}
