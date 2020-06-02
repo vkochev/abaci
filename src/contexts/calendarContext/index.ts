@@ -8,8 +8,8 @@ type CalendarState = {
   lastDate: Date;
   anchorDate: Date;
   selectedDate: Date | null;
-  nonRecurringIncomes: Map<number, Income[]>;
-  fixedIncomes: Map<number, Income[]>;
+  nonRecurringIncomes: Map<number, NonRecurringIncome[]>;
+  fixedIncomes: Map<FixedIncome['period'], Map<number, FixedIncome[]>>;
 };
 type CalendarAction =
   | {
@@ -18,12 +18,17 @@ type CalendarAction =
   | { type: 'show_next_month' }
   | { type: 'select_date'; value: Date }
   | { type: 'unselect_date' }
-  | { type: 'add_income'; date: Date; value: Income; incomeType: 'fixed' | 'nonRecurring' };
+  | { type: 'add_income'; date: Date; value: NonRecurringIncome | FixedIncome };
 
-export type Income = { tag: string; value: number };
+export type NonRecurringIncome = { type: 'nonRecurring'; tag: string; value: number };
+export type FixedIncome = { type: 'fixed'; tag: string; value: number; period: 'monthly' };
+
 export const incomeTypes = ['fixed', 'nonRecurring'] as const;
 export type IncomeTypes = typeof incomeTypes[number];
-export type Incomes = Immutable<CalendarState>['nonRecurringIncomes'];
+
+export type NonRecurringIncomes = Immutable<CalendarState>['nonRecurringIncomes'];
+export type FixedIncomes = Immutable<CalendarState>['fixedIncomes'];
+
 const initialDate = new Date();
 const initialState: CalendarState = getFromLocalStorage(localStorageKey) ?? {
   anchorDate: initialDate,
@@ -76,7 +81,7 @@ const calendarContextReducer = lsm(localStorageKey)(
         break;
       }
       case 'add_income': {
-        switch (action.incomeType) {
+        switch (action.value.type) {
           case 'nonRecurring': {
             const key = action.date.valueOf();
             const draftValue = draft.nonRecurringIncomes.get(key);
@@ -88,14 +93,18 @@ const calendarContextReducer = lsm(localStorageKey)(
             break;
           }
           case 'fixed': {
-            const key = action.date.getUTCDate();
-            const draftValue = draft.fixedIncomes.get(key);
-            if (draftValue) {
-              draftValue.push(action.value);
-            } else {
-              draft.fixedIncomes.set(key, [action.value]);
+            switch (action.value.period) {
+              case 'monthly': {
+                const key = action.date.getUTCDate();
+                const draftValue = draft.fixedIncomes.get('monthly')?.get(key);
+                if (draftValue) {
+                  draftValue.push(action.value);
+                } else {
+                  draft.fixedIncomes.set('monthly', new Map([[key, [action.value]]]));
+                }
+                break;
+              }
             }
-            break;
           }
         }
       }

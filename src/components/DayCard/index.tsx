@@ -19,7 +19,7 @@ function useComponentProps() {
   return {
     selectedDate: selectedDate!,
     nonRecurringIncomes: selectedDate ? nonRecurringIncomes.get(selectedDate.valueOf()) : [],
-    fixedIncomes: selectedDate ? fixedIncomes.get(selectedDate.getUTCDate()) : [],
+    monthlyIncomes: selectedDate ? fixedIncomes.get('monthly')?.get(selectedDate.getUTCDate()) : [],
     selectedDateString,
     dispatch,
     show: Boolean(selectedDate),

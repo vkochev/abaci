@@ -2,7 +2,7 @@ import { ComponentProps } from '.';
 import React from 'react';
 import styled, { css } from 'styled-components';
 import { shortWeekDays } from './constants';
-import { DispatchCalendarAction, Incomes } from '../../contexts/calendarContext';
+import { DispatchCalendarAction, NonRecurringIncomes, FixedIncomes } from '../../contexts/calendarContext';
 import { spaceBetweenFlexMixin } from '../../styledMixins';
 const Container = styled.div`
   @media screen and (min-width: 640px) {
@@ -91,8 +91,8 @@ const DayNumberContainer = styled.div`
 function* drawDays(
   range: Generator<Date>,
   now: Date,
-  fixedIncomes: Incomes,
-  nonRecurringIncomes: Incomes,
+  fixedIncomes: FixedIncomes,
+  nonRecurringIncomes: NonRecurringIncomes,
   dispatch: DispatchCalendarAction
 ) {
   while (true) {
@@ -101,7 +101,7 @@ function* drawDays(
 
     const totalIncome =
       (nonRecurringIncomes.get(value.valueOf()) ?? []).reduce((acc, cur) => acc + cur.value, 0) +
-      (fixedIncomes.get(value.getUTCDate()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
+      (fixedIncomes.get('monthly')?.get(value.getUTCDate()) ?? []).reduce((acc, cur) => acc + cur.value, 0);
     yield (
       <DayCard
         key={value.toISOString()}

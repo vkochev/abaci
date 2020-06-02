@@ -10,7 +10,7 @@ import {
   shadow1Mixin,
   fadeInKeyframe,
 } from '../../styledMixins';
-import { Income, IncomeTypes } from '../../contexts/calendarContext';
+import { NonRecurringIncome, FixedIncome } from '../../contexts/calendarContext';
 
 const validationSchema = yup.object({
   value: yup.number().integer().min(1).required(),
@@ -155,12 +155,10 @@ export function Component(props: ComponentProps) {
           <h1>{props.selectedDateString}</h1>
           <Link children="Закрыть" onClick={() => props.dispatch({ type: 'unselect_date' })} />
         </Header>
-        <Formik<Income & { type: IncomeTypes }>
+        <Formik<NonRecurringIncome | FixedIncome>
           validationSchema={validationSchema}
-          initialValues={{ tag: '', value: 0, type: 'fixed' }}
-          onSubmit={({ type, ...value }) =>
-            props.dispatch({ type: 'add_income', date: props.selectedDate, value, incomeType: type })
-          }
+          initialValues={{ tag: '', value: 0, type: 'fixed', period: 'monthly' }}
+          onSubmit={(value) => props.dispatch({ type: 'add_income', date: props.selectedDate, value })}
         >
           {({ handleChange, errors }) => {
             const hasErrors = Object.values(errors).some((v) => v != null);
@@ -173,9 +171,9 @@ export function Component(props: ComponentProps) {
                     ))}
                   </TagsContainer>
                 )}
-                {!!props.fixedIncomes && (
+                {!!props.monthlyIncomes && (
                   <TagsContainer>
-                    {props.fixedIncomes.map(({ tag, value }, i) => (
+                    {props.monthlyIncomes.map(({ tag, value }, i) => (
                       <FixedIncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
                     ))}
                   </TagsContainer>
