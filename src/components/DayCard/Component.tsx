@@ -155,6 +155,38 @@ export function Component(props: ComponentProps) {
           <h1>{props.selectedDateString}</h1>
           <Link children="Закрыть" onClick={() => props.dispatch({ type: 'unselect_date' })} />
         </Header>
+        {!!props.nonRecurringIncomes && (
+          <TagsContainer>
+            {props.nonRecurringIncomes.map((income, i) => {
+              const { tag, value } = income;
+              return (
+                <NonRecurringIncomeTag key={i}>
+                  <span>{`${tag || 'Без категории'}: ${value}`}</span>
+                  <button
+                    children="x"
+                    onClick={() => props.dispatch({ type: 'remove_income', date: props.selectedDate, value: income })}
+                  />
+                </NonRecurringIncomeTag>
+              );
+            })}
+          </TagsContainer>
+        )}
+        {!!props.monthlyIncomes && (
+          <TagsContainer>
+            {props.monthlyIncomes.map((income, i) => {
+              const { tag, value } = income;
+              return (
+                <FixedIncomeTag key={i}>
+                  <span>{`${tag || 'Без категории'}: ${value}`}</span>
+                  <button
+                    children="x"
+                    onClick={() => props.dispatch({ type: 'remove_income', date: props.selectedDate, value: income })}
+                  />
+                </FixedIncomeTag>
+              );
+            })}
+          </TagsContainer>
+        )}
         <Formik<NonRecurringIncome | FixedIncome>
           validationSchema={validationSchema}
           initialValues={{ tag: '', value: 0, type: 'fixed', period: 'monthly' }}
@@ -164,20 +196,6 @@ export function Component(props: ComponentProps) {
             const hasErrors = Object.values(errors).some((v) => v != null);
             return (
               <StyledForm>
-                {!!props.nonRecurringIncomes && (
-                  <TagsContainer>
-                    {props.nonRecurringIncomes.map(({ tag, value }, i) => (
-                      <NonRecurringIncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
-                    ))}
-                  </TagsContainer>
-                )}
-                {!!props.monthlyIncomes && (
-                  <TagsContainer>
-                    {props.monthlyIncomes.map(({ tag, value }, i) => (
-                      <FixedIncomeTag key={i} children={`${tag || 'Без категории'}: ${value}`} />
-                    ))}
-                  </TagsContainer>
-                )}
                 <Row>
                   <Col1>Доход</Col1>
                   <Col2>
