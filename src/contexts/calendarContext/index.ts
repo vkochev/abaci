@@ -18,7 +18,8 @@ type CalendarAction =
   | { type: 'show_next_month' }
   | { type: 'select_date'; value: Date }
   | { type: 'unselect_date' }
-  | { type: 'add_income'; date: Date; value: NonRecurringIncome | FixedIncome };
+  | { type: 'add_income'; date: Date; value: NonRecurringIncome | FixedIncome }
+  | { type: 'remove_income'; date: Date; value: NonRecurringIncome | FixedIncome };
 
 export type NonRecurringIncome = { type: 'nonRecurring'; tag: string; value: number };
 export type FixedIncome = { type: 'fixed'; tag: string; value: number; period: 'monthly' };
@@ -105,6 +106,30 @@ const calendarContextReducer = lsm(localStorageKey)(
                 break;
               }
             }
+          }
+        }
+        break;
+      }
+      case 'remove_income': {
+        const { type, tag, value } = action.value;
+        switch (type) {
+          case 'nonRecurring': {
+            const key = action.date.valueOf();
+            const draftValue = draft.nonRecurringIncomes.get(key);
+            if (draftValue) {
+              const newValue = draftValue.filter((v) => v.tag !== tag && v.value !== value);
+              draft.nonRecurringIncomes.set(key, newValue);
+            }
+            break;
+          }
+          case 'fixed': {
+            const key = action.date.getUTCDate();
+            const draftValue = draft.fixedIncomes.get('monthly')?.get(key);
+            if (draftValue) {
+              const newValue = draftValue.filter((v) => v.tag !== tag && v.value !== value);
+              draft.fixedIncomes.get('monthly')?.set(key, newValue);
+            }
+            break;
           }
         }
       }
